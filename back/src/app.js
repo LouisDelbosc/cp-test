@@ -1,8 +1,10 @@
 const http = require('http');
 const co = require('co');
 const express = require('express');
+const mongoose = require('mongoose');
 
 const { configure } = require('./config/express');
+const { mongodb } = require('./config/index.js');
 
 let app;
 let server;
@@ -18,10 +20,15 @@ async function start() {
   }
   app = configure(express());
 
+  mongoose.connect(mongodb.url);
+  mongoose.connection.on('error', error => {
+    console.warn('Error', error);
+  });
+
   const port = app.get('port');
   server = http.createServer(app);
   await server.listen(port);
-// eslint-disable-next-line no-console
+  // eslint-disable-next-line no-console
   console.log(`✔ Server running on port ${port}`);
   return app;
 }
@@ -37,6 +44,7 @@ async function stop() {
     server = null;
     app = null;
   }
+  if (mongoose.connection) mongoose.disconnect();
   return Promise.resolve();
 }
 
