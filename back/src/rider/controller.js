@@ -1,31 +1,27 @@
-const { Ride } = require('./model.js');
-const _ = require('lodash');
+const mongoose = require('mongoose');
+const { Rider } = require('./model.js');
+const utils = require('./utils.js');
 
-function completeRide(completeRidePayload, rider) {
-  const { id } = completeRidePayload;
-  const onGoingRide = rider.rides.find(ride => ride.rideId === id);
-  if (onGoingRide) {
-    onGoingRide.status = 'COMPLETED';
-  } else {
-    // eslint-disable-next-line no-console
-    console.warn(`Ride ${id} cannot be completed`);
-  }
+// const _ = require('lodash');
+
+mongoose.Promise = Promise;
+
+function completeRide(payload) {
+  return Rider.findOne({ riderId: payload.rider_id })
+    .catch(err => console.warn(`Rider ${payload.rider_id} not found: ${err}`))
+    .then(rider => utils.completeRide(payload, rider))
+    .then(rider => rider.save(), err => console.warn(err.message));
 }
-function createRide({ id, amount }, rider) {
-  if (!_.some(rider.rides, ride => ride.rideId === id)) {
-    const ride = new Ride({
-      rideId: id,
-      amount,
-      status: 'CREATED'
-    });
-    rider.rides.push(ride);
-  } else {
-    // eslint-disable-next-line no-console
-    console.warn(`Ride ${id} is already created`);
-  }
+
+function createRide(payload) {
+  return Rider.findOne({ riderId: payload.rider_id })
+    .catch(err => console.warn(`Rider ${payload.rider_id} not found: ${err}`))
+    .then(rider => utils.createRide(payload, rider))
+    .then(rider => rider.save(), err => console.warn(err.message));
 }
-function updatePhone(updatePhonePayload, rider) {
-  rider.phoneNumber = updatePhonePayload.phone_number;
+
+function updatePhone({ id, phone_number }) {
+  return Rider.update({ riderId: id }, { $set: { phoneNumber: phone_number } });
 }
 
 module.exports = {
