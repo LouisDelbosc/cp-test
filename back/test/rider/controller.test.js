@@ -5,6 +5,7 @@ const { RiderFactory, RideFactory } = require('./factory.js');
 const {
   completeRide,
   createRide,
+  signup,
   updatePhone
 } = require('../../src/rider/controller.js');
 
@@ -21,7 +22,8 @@ describe('rider.controller', () => {
   });
 
   beforeEach(done => {
-    const rider = new Rider({
+    Rider.create({
+      name: 'firstname lastname',
       riderId: 1,
       loyaltyPoint: 0,
       phoneNumber: 'phone',
@@ -32,10 +34,7 @@ describe('rider.controller', () => {
           amount: 100
         })
       ]
-    });
-    rider.save().then(() => {
-      done();
-    });
+    }).then(() => done());
   });
 
   afterEach(done => {
@@ -46,6 +45,18 @@ describe('rider.controller', () => {
 
   after(done => {
     mongoose.disconnect(done);
+  });
+
+  describe('createRider()', () => {
+    it('should create a new Rider', async () => {
+      const payload = { id: 245, name: 'John Doe' };
+      await signup(payload);
+      const rider = await Rider.findOne({ riderId: 245 }).exec();
+      expect(rider.name).to.equal('John Doe');
+      expect(rider.rides.length).to.equal(0);
+      expect(rider.loyaltyPoint).to.equal(0);
+      expect(rider.phoneNumber).to.equal('');
+    });
   });
 
   describe('updatePhone()', () => {

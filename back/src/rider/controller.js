@@ -24,8 +24,19 @@ function updatePhone({ id, phone_number }) {
   return Rider.update({ riderId: id }, { $set: { phoneNumber: phone_number } });
 }
 
+function signup(payload) {
+  Rider.create({
+    name: payload.name,
+    riderId: payload.id,
+    loyaltyPoint: 0,
+    phoneNumber: '',
+    rides: []
+  });
+}
+
 module.exports = {
   completeRide,
   createRide,
+  signup,
   updatePhone
 };

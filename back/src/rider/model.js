@@ -8,6 +8,7 @@ const RideSchema = new mongoose.Schema({
 });
 
 const RiderSchema = new mongoose.Schema({
+  name: { type: String },
   loyaltyPoint: { type: Number, min: 0 },
   phoneNumber: { type: String },
   riderId: { type: String },
