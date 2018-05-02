@@ -27,7 +27,7 @@ function completeRide(completeRidePayload, rider) {
     );
     return rider;
   }
-  throw Error(`Ride ${id} is already completed`);
+  throw Error(`Ride ${id} is already completed or not found`);
 }
 
 function createRide({ id, amount }, rider) {

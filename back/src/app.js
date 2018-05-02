@@ -2,12 +2,49 @@ const http = require('http');
 const co = require('co');
 const express = require('express');
 const mongoose = require('mongoose');
+const amqplib = require('amqplib');
 
 const { configure } = require('./config/express');
-const { mongodb } = require('./config/index.js');
+const { mongodb, amqp } = require('./config/index.js');
+
+const {
+  completeRide,
+  createRide,
+  signup,
+  updatePhone
+} = require('./rider/controller.js');
 
 let app;
 let server;
+
+async function initQueue(channel, exchange, name, key, cb) {
+  await channel.assertQueue(name);
+  channel.bindQueue(name, exchange, key);
+  channel.consume(name, msg => {
+    const { payload } = JSON.parse(msg.content.toString());
+    console.log(" [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
+    cb(payload);
+  });
+}
+
+async function initConsumer(amqpUrl, exchange) {
+  const open = await amqplib.connect(amqpUrl);
+  const channel = await open.createChannel();
+  await channel.assertExchange(exchange, 'topic', {
+    durable: true
+  });
+
+  initQueue(channel, exchange, 'signup', 'rider.signup', signup);
+  initQueue(channel, exchange, 'create', 'rider.create', createRide);
+  initQueue(channel, exchange, 'complete', 'rider.completed', completeRide);
+  initQueue(
+    channel,
+    exchange,
+    'update_phone',
+    'rider.update_phone',
+    updatePhone
+  );
+}
 
 /**
  * Start the web app.
@@ -24,6 +61,8 @@ async function start() {
   mongoose.connection.on('error', error => {
     console.warn('Error', error);
   });
+
+  initConsumer(amqp.url, amqp.exchange);
 
   const port = app.get('port');
   server = http.createServer(app);

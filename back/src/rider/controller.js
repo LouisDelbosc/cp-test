@@ -21,7 +21,10 @@ function createRide(payload) {
 }
 
 function updatePhone({ id, phone_number }) {
-  return Rider.update({ riderId: id }, { $set: { phoneNumber: phone_number } });
+  return Rider.update(
+    { riderId: id },
+    { $set: { phoneNumber: phone_number } }
+  ).catch(err => console.warn(`Error update phone on Rider ${id}: ${err}`));
 }
 
 function signup(payload) {
