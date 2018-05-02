@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 const { expect } = require('chai');
 const { RiderFactory, RideFactory } = require('./factory.js');
-const { createRide, completeRide } = require('../../src/rider/utils.js');
+const {
+  createRide,
+  completeRide,
+  computeLoyaltyPoint
+} = require('../../src/rider/utils.js');
 
 describe('rider.utils', () => {
   describe('createRide()', () => {
@@ -90,6 +94,28 @@ describe('rider.utils', () => {
       const rider = RiderFactory({ riderid: 1, rides: [] });
       expect(() => completeRide(ridePayload, rider)).to.throw();
       expect(rider.rides.length).to.equal(0);
+    });
+  });
+
+  describe('computeLoyaltyPoint()', () => {
+    it('should equal amount for bronze members', () => {
+      expect(computeLoyaltyPoint(5, 0)).to.equal(5);
+      expect(computeLoyaltyPoint(10, 19)).to.equal(10);
+    });
+
+    it('should equal amount * 3 for silver members', () => {
+      expect(computeLoyaltyPoint(5, 20)).to.equal(15);
+      expect(computeLoyaltyPoint(10, 49)).to.equal(30);
+    });
+
+    it('should equal amount * 5 for gold members', () => {
+      expect(computeLoyaltyPoint(5, 50)).to.equal(25);
+      expect(computeLoyaltyPoint(10, 99)).to.equal(50);
+    });
+
+    it('should equal amount * 10 for platinium members', () => {
+      expect(computeLoyaltyPoint(5, 100)).to.equal(50);
+      expect(computeLoyaltyPoint(10, 250)).to.equal(100);
     });
   });
 });

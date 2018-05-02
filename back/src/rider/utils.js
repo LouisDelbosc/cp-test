@@ -1,6 +1,19 @@
 const { Ride } = require('./model.js');
 const _ = require('lodash');
 
+function computeLoyaltyPoint(amountRide, nbRides) {
+  if (0 <= nbRides && nbRides < 20) {
+    return amountRide;
+  } else if (20 <= nbRides && nbRides < 50) {
+    return amountRide * 3;
+  } else if (50 <= nbRides && nbRides < 100) {
+    return amountRide * 5;
+  } else if (100 <= nbRides) {
+    return amountRide * 10;
+  }
+  return 0;
+}
+
 function completeRide(completeRidePayload, rider) {
   const { id } = completeRidePayload;
   const onGoingRide = rider.rides.find(
@@ -8,6 +21,10 @@ function completeRide(completeRidePayload, rider) {
   );
   if (onGoingRide) {
     onGoingRide.status = 'COMPLETED';
+    rider.loyaltyPoint += computeLoyaltyPoint(
+      onGoingRide.amount,
+      rider.rides.length
+    );
     return rider;
   }
   throw Error(`Ride ${id} is already completed`);
@@ -28,5 +45,6 @@ function createRide({ id, amount }, rider) {
 
 module.exports = {
   completeRide,
-  createRide
+  createRide,
+  computeLoyaltyPoint
 };

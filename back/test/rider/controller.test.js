@@ -81,6 +81,12 @@ describe('rider.controller', () => {
       });
     });
 
+    it('should update loyalty for a bronze rider', async () => {
+      await completeRide({ id: 10, amount: 10, rider_id: 1 });
+      const rider = await Rider.findOne({ riderId: 1 }).exec();
+      expect(rider.loyaltyPoint).to.equal(100); // amount in created ride
+    });
+
     it('should not update when no ride to complete', async () => {
       await completeRide({ id: 11, amount: 10, rider_id: 1 });
       const rider = await Rider.findOne({ riderId: 1 }).exec();

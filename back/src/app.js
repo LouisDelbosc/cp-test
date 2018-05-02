@@ -44,7 +44,9 @@ async function stop() {
     server = null;
     app = null;
   }
-  if (mongoose.connection) mongoose.disconnect();
+  if (mongoose.connection) {
+    mongoose.disconnect();
+  }
   return Promise.resolve();
 }
 
