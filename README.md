@@ -1,3 +1,65 @@
+# Review
+
+I decided to use a mongo database to have persistent data storage
+
+## Code
+
+I add code into 4 files
+- models
+- utils
+- controller
+- app
+
+### Models
+
+There are 2 data structures
+- Rider
+  - it represents the people using the app
+- Ride
+  - it represents the ride riders ask the app
+  
+### Utils
+
+The part of the code is useful to have easily testable function (does not call the database).
+We can safely test all the edgecase without looking at the database output.
+
+3 data transformation functions are defined:
+- loyalty point computation
+- completeRide
+  - we modify the rider's rides
+  - the edge cases are handle by throwing an error
+- createRide
+  - same as completeRide
+  
+### Controller
+
+In this part of the code, we manage the side-effect (save, find, update, create in db) and call the utils functions.
+We can test only the database part --> does it save what we expect ?
+
+### App
+
+We initialize the external services the app need (mongodb and rabbitmq client).
+Also we bind queues and events to our controller functions
+
+This part of the code is not unitary tested because I do not know how to properly do it.
+However to assert my code does what I assume, I wrote a small script I deleted afterward.
+
+## Difficulties
+
+The main difficulty was to use setup the mongoclient (using mongoose) to have clean unit tests and connecting with RabbitMQ which was totally new for me.
+I had to dive in the documentation of both librairy and took me more time than I thought.
+
+## Improvement
+
+Several improvement can be made
+- schema validation
+- better error handling (currently console.warn)
+- sometime tests failed alone because of pre or post-hooks
+- unitary test on queue functions
+- a way to show actually did the exercice without inspecting the database
+- do the optionals features requested
+
+
 # Technical Test / Full-stack
 
 **Please read those instructions carefully**, it contains useful information to help you complete the
